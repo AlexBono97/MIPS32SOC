@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>1</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>memoryDecoder</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>vAddr:32,mW,mR</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>module memoryDecoder(
+    input [31:0] vAddr,
+    input mW,
+    input mR,
+    output reg [12:0] pAd,
+    output reg[2:0] mE,
+    output reg[1:0] mB,
+    output reg iAd
+);
+
+parameter [31:0] startg=32&apos;h10010000;
+parameter [31:0] endg=32&apos;h10011000;
+parameter [31:0] starts=32&apos;h7FFFEFFC;
+parameter [31:0] ends=32&apos;h7FFFFFFC;
+parameter [31:0] startvga=32&apos;hb800;
+parameter [31:0] endvga = 32&apos;hcabf;
+parameter [31:0] startio = 32&apos;hffff0000;
+parameter [31:0] endio = 32&apos;hffff000f;
+reg [31:0] temp;
+
+always @(*)
+
+if(mW | mR) 
+begin
+    if(vAddr&gt;= startg &amp; vAddr&lt;endg)begin
+        temp = vAddr - 32&apos;h10010000;
+	    pAd = temp;
+        iAd = 1&apos;b0;
+        mE = 3&apos;b001; //enable datamemory
+        mB = 2&apos;b00; //accediendo datamemory
+    end else if(vAddr &gt;= starts &amp; vAddr&lt;ends)begin
+	temp= vAddr - 32&apos;h7fffdffc;
+     	pAd = temp;
+        iAd = 1&apos;b0;
+        mE = 3&apos;b001;//enable data memory
+        mB = 2&apos;b00;//accediendo datamemory
+    end else if(vAddr&gt;=startvga &amp; vAddr&lt;=endvga)begin
+        temp = vAddr - 32&apos;hb800;
+        pAd = temp;
+        iAd = 1&apos;b0;
+        mE = 3&apos;b010;//enable vga
+        mB = 2&apos;b01;//accediendo vga
+    end else if(vAddr&gt;=startio &amp; vAddr&lt;=endio)begin
+        temp = vAddr - 32&apos;hFFFF0000;
+        pAd = temp;
+        iAd = 1&apos;b0;
+        mE = 3&apos;b100;//enable I/O
+        mB = 2&apos;b10;//accediendio I/O
+    end else begin
+        pAd = 13&apos;d0;
+        iAd = 1&apos;b1;
+        mE = 3&apos;b000;
+        mB = 2&apos;b00;
+    end
+end
+
+endmodule</string>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>pAd:13,mE:3,mB:2,iAd</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>5</int>
+        </entry>
+      </elementAttributes>
+      <pos x="320" y="200"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>vAddr</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="220" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>mWrite</string>
+        </entry>
+      </elementAttributes>
+      <pos x="220" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>mRead</string>
+        </entry>
+      </elementAttributes>
+      <pos x="220" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>pAddr</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>13</int>
+        </entry>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>dec</intFormat>
+        </entry>
+      </elementAttributes>
+      <pos x="580" y="180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>mEnab</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>3</int>
+        </entry>
+      </elementAttributes>
+      <pos x="580" y="220"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>mBank</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>2</int>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="260"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>iAddr</string>
+        </entry>
+      </elementAttributes>
+      <pos x="600" y="340"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>vAddr       mWrite mRead pAddr      mEnab mBank iAddr
+# Start of Data Memory
+0x10010000  0     1     0x00000000  1     0     0   
+0x10010001  0     1     0x00000001  1     0     0   
+0x10010002  0     1     0x00000002  1     0     0   
+0x10010003  0     1     0x00000003  1     0     0   
+0x10010000  1     0     0x00000000  1     0     0   
+0x10010001  1     0     0x00000001  1     0     0   
+0x10010002  1     0     0x00000002  1     0     0   
+0x10010003  1     0     0x00000003  1     0     0   
+# *** If the address is invalid MemEnable must be 0
+0x1000FFFF  1     0     X           0     X     1
+0x1000FFFF  0     1     X           0     X     1
+0x10011000  1     0     X           0     X     1
+0x10011000  0     1     X           0     X     1
+# *** ---------------------------------------------
+0x10010FFF  0     1     0x00000FFF  1     0     0   
+0x10010FFF  1     0     0x00000FFF  1     0     0   
+# End of Data Memory
+#================================================
+# Start of Stack
+0x7FFFEFFC  0     1     0x00001000  1     0     0   
+0x7FFFEFFD  0     1     0x00001001  1     0     0   
+0x7FFFEFFE  0     1     0x00001002  1     0     0   
+0x7FFFEFFF  0     1     0x00001003  1     0     0   
+0x7FFFEFFC  1     0     0x00001000  1     0     0   
+0x7FFFEFFD  1     0     0x00001001  1     0     0   
+0x7FFFEFFE  1     0     0x00001002  1     0     0   
+0x7FFFEFFF  1     0     0x00001003  1     0     0   
+# *** If the address is invalid MemEnable must be 0
+0x7FFFEFFB  1     0     X           0     X     1
+0x7FFFEFFB  0     1     X           0     X     1
+0x7FFFFFFC  1     0     X           0     X     1
+0x7FFFFFFC  0     1     X           0     X     1
+# *** ---------------------------------------------
+0x7FFFFFFB  0     1     0x00001FFF  1     0     0   
+0x7FFFFFFB  1     0     0x00001FFF  1     0     0   
+# End of Stack
+#================================================
+# Start of VGA memory
+0x0000B800  0     1     0x00000000  2     1     0   
+0x0000B801  0     1     0x00000001  2     1     0   
+0x0000B802  0     1     0x00000002  2     1     0   
+0x0000B803  0     1     0x00000003  2     1     0   
+0x0000B800  1     0     0x00000000  2     1     0   
+0x0000B801  1     0     0x00000001  2     1     0   
+0x0000B802  1     0     0x00000002  2     1     0   
+0x0000B803  1     0     0x00000003  2     1     0   
+# *** If the address is invalid MemEnable must be 0
+0x0000B7FF  1     0     X           0     X     1
+0x0000B7FF  0     1     X           0     X     1
+0x0000CAC0  1     0     X           0     X     1
+0x0000CAC0  0     1     X           0     X     1
+# *** ---------------------------------------------
+0x0000CABF  0     1     0x000012BF  2     1     0   
+0x0000CABF  1     0     0x000012BF  2     1     0   
+# End of VGA memory
+#================================================
+# Start of I/O memory
+0xFFFF0000  0     1     0x00000000  4     2     0   
+0xFFFF0001  0     1     0x00000001  4     2     0   
+0xFFFF0002  0     1     0x00000002  4     2     0   
+0xFFFF0003  0     1     0x00000003  4     2     0   
+0xFFFF0000  1     0     0x00000000  4     2     0   
+0xFFFF0001  1     0     0x00000001  4     2     0   
+0xFFFF0002  1     0     0x00000002  4     2     0   
+0xFFFF0003  1     0     0x00000003  4     2     0   
+# *** If the address is invalid MemEnable must be 0
+0xFFFEFFFF  1     0     X           0     X     1
+0xFFFEFFFF  0     1     X           0     X     1
+0xFFFF0010  1     0     X           0     X     1
+0xFFFF0010  0     1     X           0     X     1
+# *** ---------------------------------------------
+0xFFFF000F  0     1     0x0000000F  4     2     0   
+0xFFFF000F  1     0     0x0000000F  4     2     0   
+# End of I/O memory
+#================================================
+</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="240" y="80"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="280" y="240"/>
+      <p2 x="320" y="240"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="240"/>
+      <p2 x="560" y="240"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="180"/>
+      <p2 x="280" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="500" y="180"/>
+      <p2 x="580" y="180"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="260"/>
+      <p2 x="280" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="560" y="260"/>
+      <p2 x="640" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="260"/>
+      <p2 x="520" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="520" y="340"/>
+      <p2 x="600" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="280" y="200"/>
+      <p2 x="320" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="200"/>
+      <p2 x="500" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="220"/>
+      <p2 x="320" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="420" y="220"/>
+      <p2 x="580" y="220"/>
+    </wire>
+    <wire>
+      <p1 x="560" y="240"/>
+      <p2 x="560" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="500" y="180"/>
+      <p2 x="500" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="280" y="180"/>
+      <p2 x="280" y="200"/>
+    </wire>
+    <wire>
+      <p1 x="280" y="240"/>
+      <p2 x="280" y="260"/>
+    </wire>
+    <wire>
+      <p1 x="520" y="260"/>
+      <p2 x="520" y="340"/>
+    </wire>
+  </wires>
+</circuit>
