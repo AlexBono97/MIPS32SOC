@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>1</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>MemoryWDataEncoder</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>inD:32,ofs:2,iwe,ds:2</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>module MemoryWDataEncoder(
+    input [31:0] inD,
+    input [1:0]ofs,
+    input iwe,
+    input [1:0] ds,
+    output reg[31:0] oD,
+    output reg[3:0] owe
+);
+
+always @(*)
+if(iwe)
+begin
+  case (ds)
+        2&apos;b00: //Word
+        begin
+            owe=4&apos;b1111;
+            oD = inD;
+        end
+        2&apos;b01: //Half-Word
+        begin
+            case (ofs)
+              2&apos;b00:
+              begin
+                owe=4&apos;b0011;
+                oD=inD&lt;&lt;16;
+              end
+              2&apos;b01:
+              begin
+                owe=4&apos;b0011;
+                oD=inD&lt;&lt;16;
+              end
+              2&apos;b10:
+              begin
+                owe=4&apos;b1100;
+                oD={16&apos;b0,inD[15:0]};
+              end
+              2&apos;b11:
+              begin
+                owe=4&apos;b1100;
+                oD={16&apos;b0,inD[15:0]};
+              end
+            endcase
+        end
+        2&apos;b10: //Byte
+        begin
+            case(ofs)
+              2&apos;b00:
+              begin
+                owe=4&apos;b0001;
+                oD=inD&lt;&lt;24;
+              end
+              2&apos;b01:
+              begin
+                owe=4&apos;b0010;
+                oD={8&apos;b0,inD[7:0],16&apos;b0};
+              end
+              2&apos;b10:
+              begin
+                owe=4&apos;b0100;
+                oD={16&apos;b0,inD[7:0],8&apos;b0};
+              end
+              2&apos;b11:
+              begin
+                owe=4&apos;b1000;
+                oD={24&apos;b0,inD[7:0]};
+              end
+            endcase
+        end
+    default: 
+        begin
+        owe=4&apos;bx;
+        oD=31&apos;bx;
+        end
+  endcase
+end else begin
+    owe=4&apos;b0000;
+    oD=31&apos;b0;
+end
+
+endmodule</string>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>oD:32,owe:4</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>5</int>
+        </entry>
+      </elementAttributes>
+      <pos x="480" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>dOut</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="660" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>weOut</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="720" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>inD</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>Offs</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>2</int>
+        </entry>
+      </elementAttributes>
+      <pos x="240" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>mWrite</string>
+        </entry>
+      </elementAttributes>
+      <pos x="200" y="360"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>dSize</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>2</int>
+        </entry>
+      </elementAttributes>
+      <pos x="300" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>inD         Offs    mWrite  dSize   dOut        weOut 
+0xAABBCCDD  0       1     0         0xAABBCCDD  0xF
+0xAABBCCDD  1       1     0         0xAABBCCDD  0xF
+0xAABBCCDD  2       1     0         0xAABBCCDD  0xF
+0xAABBCCDD  3       1     0         0xAABBCCDD  0xF
+0xAABBCCDD  0       1     1         0xCCDD0000  0x3
+0xAABBCCDD  1       1     1         0xCCDD0000  0x3
+0xAABBCCDD  2       1     1         0x0000CCDD  0xC
+0xAABBCCDD  3       1     1         0x0000CCDD  0xC
+0xAABBCCDD  0       1     2         0xDD000000  0x1
+0xAABBCCDD  1       1     2         0x00DD0000  0x2
+0xAABBCCDD  2       1     2         0x0000DD00  0x4
+0xAABBCCDD  3       1     2         0x000000DD  0x8
+0xAABBCCDD  0       0     0         X           0x0
+0xAABBCCDD  0       0     1         X           0x0
+0xAABBCCDD  0       0     2         X           0x0
+0xAABBCCDD  1       0     0         X           0x0
+0xAABBCCDD  1       0     1         X           0x0
+0xAABBCCDD  1       0     2         X           0x0
+0xAABBCCDD  2       0     0         X           0x0
+0xAABBCCDD  2       0     1         X           0x0
+0xAABBCCDD  2       0     2         X           0x0</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="160"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="600" y="320"/>
+      <p2 x="720" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="240" y="320"/>
+      <p2 x="300" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="320" y="320"/>
+      <p2 x="480" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="340" y="340"/>
+      <p2 x="480" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="580" y="280"/>
+      <p2 x="660" y="280"/>
+    </wire>
+    <wire>
+      <p1 x="340" y="280"/>
+      <p2 x="480" y="280"/>
+    </wire>
+    <wire>
+      <p1 x="200" y="360"/>
+      <p2 x="320" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="440"/>
+      <p2 x="340" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="580" y="300"/>
+      <p2 x="600" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="300"/>
+      <p2 x="480" y="300"/>
+    </wire>
+    <wire>
+      <p1 x="320" y="320"/>
+      <p2 x="320" y="360"/>
+    </wire>
+    <wire>
+      <p1 x="340" y="340"/>
+      <p2 x="340" y="440"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="300"/>
+      <p2 x="600" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="300"/>
+      <p2 x="300" y="320"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>

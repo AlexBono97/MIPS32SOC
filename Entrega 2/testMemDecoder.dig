@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>1</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>External</elementName>
+      <elementAttributes>
+        <entry>
+          <string>applicationType</string>
+          <appType>IVERILOG</appType>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>memoryDecoder</string>
+        </entry>
+        <entry>
+          <string>externalInputs</string>
+          <string>vAddr:32</string>
+        </entry>
+        <entry>
+          <string>Code</string>
+          <string>module memoryDecoder(
+    input [31:0] vAddr,
+    output reg [10:0] pAddr,
+    output reg iAddr
+);
+
+parameter [31:0] startg=32&apos;h10010000;
+parameter [31:0] endg=32&apos;h10011000;
+parameter [31:0] starts=32&apos;h7FFFEFFC;
+parameter [31:0] ends=32&apos;h7FFFFFFC;
+parameter [31:0] sum = 32&apos;d1024;
+reg [31:0] temp;
+
+always @(*)
+begin
+    if(vAddr&gt;= startg &amp; vAddr&lt;endg)begin
+        temp = vAddr - startg;
+	pAddr = temp;
+        iAddr = 1&apos;b0;
+    end else if(vAddr &gt;= starts &amp; vAddr&lt;ends)begin
+	temp= vAddr - starts;
+     	pAddr = temp;
+        iAddr = 1&apos;b0;
+    end else begin
+        pAddr = 10&apos;d0;
+        iAddr = 1&apos;b1;
+    end
+end
+
+endmodule</string>
+        </entry>
+        <entry>
+          <string>externalOutputs</string>
+          <string>pAddr:11,iAddr</string>
+        </entry>
+        <entry>
+          <string>Width</string>
+          <int>6</int>
+        </entry>
+      </elementAttributes>
+      <pos x="380" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>pAddr</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>11</int>
+        </entry>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>dec</intFormat>
+        </entry>
+      </elementAttributes>
+      <pos x="640" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>iAddr</string>
+        </entry>
+      </elementAttributes>
+      <pos x="600" y="400"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>input</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>32</int>
+        </entry>
+      </elementAttributes>
+      <pos x="180" y="320"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Probe</elementName>
+      <elementAttributes>
+        <entry>
+          <string>intFormat</string>
+          <intFormat>dec</intFormat>
+        </entry>
+      </elementAttributes>
+      <pos x="540" y="440"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Testcase</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Testdata</string>
+          <testData>
+            <dataString>input		pAddr	iAddr
+# Global address test
+repeat (8)  (0x10010000+n)   (n)          0
+            0x10011000       X            1
+            0x1000FFFF       X            1
+            0x10010FFF       0xfff        0
+# Stack address test
+repeat (8)  (0x7FFFEFFC+n)   (0x1000+n)   0
+            0x7FFFFFFC       X            1
+            0x7FFFEFFB       X            1
+            0x7FFFFFFB       0x1FFF       0</dataString>
+          </testData>
+        </entry>
+      </elementAttributes>
+      <pos x="200" y="360"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="180" y="320"/>
+      <p2 x="380" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="500" y="320"/>
+      <p2 x="600" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="500" y="340"/>
+      <p2 x="540" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="540" y="340"/>
+      <p2 x="600" y="340"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="280"/>
+      <p2 x="640" y="280"/>
+    </wire>
+    <wire>
+      <p1 x="640" y="280"/>
+      <p2 x="640" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="340"/>
+      <p2 x="600" y="400"/>
+    </wire>
+    <wire>
+      <p1 x="600" y="280"/>
+      <p2 x="600" y="320"/>
+    </wire>
+    <wire>
+      <p1 x="540" y="340"/>
+      <p2 x="540" y="440"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>
